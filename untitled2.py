@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ''' OpenSees Visual Interface
 This package will watch your OpenSees file(s) and generate a live preview
 '''
@@ -144,8 +145,8 @@ def update_viewport_2d(frame, tclfiles):
     if nodes: # make sure some nodes exist before using them
         for node in nodes:
             ax.plot(node[1], node[2], linewidth=0, **node_style)
-            ax.text(node[1]+offset, node[2]+offset,
-                    'N'+str(node[0]), fontweight='bold') #label node
+            #ax.text(node[1]+offset, node[2]+offset,
+                    #'N'+str(node[0]), fontweight='bold') #label node
 
     # Function that returns node coords from a nodetag
     def nodecoords(nodetag, nodes=nodes):
@@ -226,8 +227,8 @@ def update_viewport_3d(frame, tclfiles):
             ax.scatter(xs=node[1], ys=node[2], zs=node[3], **node_style)
             # ax.scatter(xs=node[1], ys=node[2], zs=node[3],
             #         linewidth=0, **node_style)
-            ax.text(x=node[1]+offset, y=node[2]+offset, z=node[3]+offset,
-                    s='N'+str(node[0]), fontweight='bold',fontsize = 3) #label node
+            #ax.text(x=node[1]+offset, y=node[2]+offset, z=node[3]+offset,
+                    #s='N'+str(node[0]), fontweight='bold',fontsize = 3) #label node
 
     # Scale axes to preserve aspect ratio of 1
     node_mins = list(nodes[0][1:4])

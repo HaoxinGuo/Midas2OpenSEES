@@ -48,7 +48,7 @@ def getNodeEleSec(datas):
             #print(datas[a])
             Elestart = a + 6
             nodeend = a - 2
-        if '*MATERIAL    ; Material' in data[0]:
+        if '*BNDR-GROUP    ; Boundary Group' in data[0]:
             Eleend = a - 2
         
         if data[0][:5] == ' SECT':
@@ -60,6 +60,7 @@ def getNodeEleSec(datas):
         if data[0][:12] == '*ELASTICLINK':
             fixend = a - 2
             print(fixend)
+    print(str(Eleend))
             
     for i in range(nodestart,nodeend):
         node = datas[i]
@@ -71,6 +72,9 @@ def getNodeEleSec(datas):
         if Ele[1] == ' BEAM  ':
             Ele[1] = 'elasticBeamColumn'
             elements.append(('element',Ele[1], int(Ele[0]), int(Ele[4]), int(Ele[5]),int(Ele[3])))
+        if Ele[1] == ' TRUSS ':
+            Ele[1] = 'Truss'
+            elements.append(('element',Ele[1], int(Ele[0]), int(Ele[4]), int(Ele[5]),int(Ele[3]))) 
     
     SecValue = []
     Secnum = []
@@ -117,6 +121,7 @@ def WriteFunc(nodes,elements,SecValue,Secnum,fix):
             if lin2[1] == ['111111']:
                 for j in range(len(lin2[0])):
                     f_out.write('fix ' + lin2[0][j] + ' 1 1 1 1 1 1' + '\n') 
+    print('node.tcl Finish')
     
 # 写截面文件    
     with  open('Section.tcl', 'w') as f_out:
@@ -128,6 +133,7 @@ def WriteFunc(nodes,elements,SecValue,Secnum,fix):
             f_out.write('set ' + 'J'+i.lstrip() + ' = ' + str(lin2[3]).lstrip() + '\n')
             f_out.write('set ' + 'Iy'+i.lstrip() + ' = ' + str(lin2[5]).lstrip())
             f_out.write('set ' + 'Iz'+i.lstrip() + ' = ' + str(lin2[4]).lstrip() + '\n\n')
+    print('Section.tcl Finish')
     
 # 写单元文件    
     with  open('Element.tcl', 'w') as f_out:
@@ -135,7 +141,8 @@ def WriteFunc(nodes,elements,SecValue,Secnum,fix):
             lin2 = list(lin)
             f_out.write(lin2[0] + '\t' + str(lin2[1]) +  '\t' + str(lin2[2]) + '\t' + str(lin2[3]) + '\t' + str(lin2[4])  + '\t' 
                         + '$A'+str(lin2[5]) + '\t' + '$E1' + '\t' + '$G1' + '\t' + '$J'+str(lin2[5])  + '\t' + '$Iy'+str(lin2[5])+ '\t'  + '$Iz'+str(lin2[5]) + '\t'
-                        + '\n' )  
+                        + '\n' )
+    print('Element.tcl Finish')
             
 # 输入文件即mct文件
 # tclfiles = ('11.tcl',)
@@ -147,11 +154,11 @@ G1 = E1/(2*(1 + poisson))
 
 # 文件处理
 # print('Please Enter the file name')
-tclfile = input("输入文件名:")
+# tclfile = input("Please Enter the file name of Midas: ")
 #with open(tclfile) as f_in:
     
 # tclfile, ndm = flatten_tcl(tclfiles)
-
+tclfile = 'SongpuBridge.tcl'
 ndm = 3
 
 datas = []
@@ -162,7 +169,7 @@ with open(tclfile) as f:
 
 nodes,elements,SecValue,Secnum,fix = getNodeEleSec(datas)  
 WriteFunc(nodes,elements,SecValue,Secnum,fix)
-
+print('Done')
   
 
 
