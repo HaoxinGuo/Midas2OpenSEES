@@ -1,4 +1,3 @@
-set G1 = 14375000000.0
 set A1 = 0.37575
 set E1 = 35000000
 set G1 = [expr $E1/ (2+ 2 * poisson)]

@@ -73,8 +73,6 @@ def GetSec(datas,Matl,Elements):
     for key in SecNum:
         Secnum.append(key)
     with  open('Section.tcl', 'w') as f_out:
-        #f_out.write('set ' + 'E1' + ' = ' + str(E1) + '\n')
-        f_out.write('set ' + 'G1' + ' = ' + str(G1) + '\n')
         for lin,i,Ele in zip(SecValue,Secnum,Elements):        
             lin2 = list(lin)
             f_out.write('set ' + 'A'+i.lstrip() + ' = ' + str(lin2[0]).lstrip()+ '\n')
@@ -192,16 +190,50 @@ def GetMatl(datas,modelkey,modelvalue):
         else:
             Matl[datas[i][0]] = str(0)
     return Matl
+
+
 def Transtoby(Tran):
-    for value in Tran.values():
-        print(value)
-    #print(Tran.values())
-    
-    
-    
-    
-    
-    
+    length = 0
+    Fix1 = []
+    Fix2 =[]
+    Fix =[]
+    #Fixx = []
+    Atran ={}
+    for key,value in zip(Tran,Tran.values()):
+        Fixx = []
+        Fix1 = []
+        Fix2 =[]
+        Fix =[]
+        length = len(value.split())
+        Fix = value.split()
+        #print(Fix)
+        #print(Fix[0])
+        for index in range(0,length):            
+            if Fix[index].find('to') == -1:
+                Fix1.append(Fix[index])
+            else:
+                value1 =  int(Fix[index].find('to'))
+           #print(value1)           
+                if Fix[index].find('by') != -1:
+                   value2 =  int(Fix[index].find('by'))
+                   a = int(Fix[index][0:value1])
+                   b = int(Fix[index][value1+2:(value2)])
+                   c = int(Fix[index][(value2+2):])
+                   for d in range(a,b+c,c):              
+                       Fix2.append(d)
+                   #print(Fix2)
+                else:
+                    value2 = value1 + 2
+                    a = int(Fix[index][0:value1])
+                    b = int(Fix[index][value2:])
+                    c = 1
+                    for d in range(a,b+c,c): 
+                        Fix2.append(d)
+                    #print(Fix2)
+            Fixx = Fix1 + Fix2
+            Atran[key] = Fixx
+    return Atran
+            
 def GetRigidLink(datas,modelkey,modelvalue):
     Rigid = {}
     a = -1
@@ -214,8 +246,12 @@ def GetRigidLink(datas,modelkey,modelvalue):
             rigidend = modelvalue[a+1] - 1
     for i in range(rigidstart,rigidend):
         Rigid[(datas[i][0].split()[0])] = datas[i][2]
-    Transtoby(Rigid)
-    #print(Rigid)
+    Rtran = Transtoby(Rigid)
+    with  open('equalDOF.tcl', 'w') as f_out:
+        for key,value in zip(Rtran,Rtran.values()):        
+            for i in range(0,len(value)):
+                f_out.write('equalDOF ' + str(key) + ' ' + str(value[i]) +  ' 1 2 3 4 5 6' + '\n')
+    print('EqualDOF Finish!')
 
 
 # 自输入材料值

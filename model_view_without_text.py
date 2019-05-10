@@ -15,7 +15,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Eg - One file -  tclfiles = ('example.tcl',)
 # Eg - Two files - tclfiles = ('example1.tcl', 'example2.tcl')
 # tclfiles = ('samplemodel3d.tcl',)
-tclfiles = ('node.tcl','Section.tcl','Element.tcl','Fix.tcl')
+tclfiles = ('node.tcl','Section.tcl','Element.tcl','Fix.tcl','equalDOF.tcl')
 # Specify the refresh rate of the viewer. 1 second is default and works well
 # for small models. For larger models you may want to increase the time.
 refresh_rate = 10
@@ -26,7 +26,8 @@ refresh_rate = 10
 bg_colour = 'lightgrey' # background colour
 pl.rc('font', family='Monospace', size=10) # set font for labels
 node_style = {'color':'black', 'marker':'.', 'markersize':1} # nodes
-ele_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
+ele_style = {'color':'blue', 'linewidth':1, 'linestyle':'-'} # elements
+rigid_style = {'color':'red', 'linewidth':2, 'linestyle':'-'} # elements
 axis_style = {'color':'grey', 'linewidth':1, 'linestyle':'--'} # x=0, y=0 lines
 offset = 0.05 #offset for text
 # 2D
@@ -220,6 +221,13 @@ def update_viewport_3d(frame, tclfiles):
                 # Append [node tag, df1, df2, df3]
                 fix = line.split()
                 fixities.append([int(fix[i]) for i in range(1,8)])
+    EqualDOF = []
+    with open(tclfile) as f:
+        for line in f:
+            if 'equalDOF' in line[:8] and len(line.split()) == 9:
+                # Append [node tag, df1, df2, df3]
+                Equal = line.split()
+                EqualDOF.append([int(Equal[i]) for i in range(1,9)])
 
     # Display nodes
     if nodes: # make sure some nodes exist before using them
@@ -272,7 +280,14 @@ def update_viewport_3d(frame, tclfiles):
                         #y=offset+(iNode[1]+jNode[1])/2,
                         #z=offset+(iNode[2]+jNode[2])/2,
                         #s='E'+str(element[1])) #label element
-
+    if nodes and EqualDOF:
+        for equal in EqualDOF:
+            iNode = nodecoords(EqualDOF[0])
+            jNode = nodecoords(EqualDOF[1])
+            if iNode and jNode: # make sure both nodes exist before using them
+                ax.plot(xs=(iNode[0], jNode[0]), ys=(iNode[1], jNode[1]),
+                        zs=(iNode[2], jNode[2]), marker='', **rigid_style)
+    
     # Display boundary conditions
     if fixities: # make sure some boundary conditions exist before using them
         for fixity in fixities:
@@ -287,6 +302,8 @@ def update_viewport_3d(frame, tclfiles):
                 if fixity[3] == 1: # DOF 3 fixed
                     ax.quiver(node_x, node_y, node_z-offset,
                               0, 0, 1, pivot='tip', **bc_style3d)
+                    
+                    
     os.remove(tclfile)
 
 
